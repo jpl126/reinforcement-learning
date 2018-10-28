@@ -1,0 +1,156 @@
+\documentclass[12pt]{article}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{bbm}
+\usepackage{algorithmicx}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\DeclareRobustCommand{\bbone}{\text{\usefont{U}{bbold}{m}{n}1}}
+\DeclareMathOperator{\EX}{\mathbb{E}}% expected value
+
+\geometry{
+    a4paper,
+    left=15mm,
+    right=15mm,
+    top=20mm,
+}
+
+
+
+
+\author{Jacek Plocharczyk}
+\date{October 25, 2018}
+\title{Notes from \\Reinforcement Learning - An Introduction\\Chapter 2 }
+
+    
+\begin{document}
+    \maketitle
+    \vfill 
+    {\centering This is the short summary of each chapter from \textit{Reinforcement Learning - An Introduction} by Richard S. Sutton and Andrew G. Barto.
+    Please note that this is an unauthorized material. I will put my effort to provide the best quality I can but please bare in mind that some error and misunderstandings can occur.\par}
+    \newpage
+            % \ForAll{<condition>} \State  \EndFor
+
+
+    \begin{abstract}
+
+     This is the summary of 2nd chapter from \textit{Reinforcement Learning - An Introduction} 
+     by Richard S. Sutton and Andrew G. Barto.
+     This notes are focused mostly on theory and equations.
+
+    \end{abstract}  
+
+
+    \newpage
+    \section{A $k$-armed Bandit Problem}
+    Expected value of arbitrary action $a$ is described as $q_*$:
+    \begin{equation}
+        q_*(a) = \EX[R_t|A_t=a]
+    \end{equation}
+    \\
+    Main goal of reinforcement learning is to find optimal ration between exploration and exploitation.
+
+
+    \subsection{Action-value Methods}
+    Estimation of $q_*$ of action $a$ in time $t$ is denoted by $Q_t$:
+    \begin{equation}
+        Q_t(a) = \frac{\sum_{i=1}^{t-1}R_i \cdot \mathbbm{1}_{A_i=a}}{\sum_{i=1}^{t-1}\mathbbm{1}_{A_i=a}}
+    \end{equation}
+    \\
+    For number of iteration $n \rightarrow \infty$ the estimated action-value function
+     $ Q \rightarrow q_*$.
+    \vspace{0.3cm}
+    \\Greedy action is the action with the highest estimated reward:
+    \begin{equation}
+        A_t = \underset{a}{arg\,max}Q_t(a)
+    \end{equation}
+
+    \subsection{Incremental Implementation}
+    We can simplify description of estimated action value function of single action:
+
+    \begin{equation}
+        Q_{n+1} = Q_n +\frac{1}{n} [ R_n - Q_n]
+    \end{equation}
+    
+
+    \begin{algorithm}
+        \caption{Simple bandit algorithm}
+        \begin{algorithmic}[1]
+            \Procedure{}{}
+
+            \For{$a$ = 1 to $k$}
+                \State $Q(a) =0$
+                \State $N(a) =0$
+            \EndFor
+            \While{forever}
+                \State $
+                    A =
+                \begin{cases}
+                    \underset{a}{arg\,max}Q(a) & \text{with probability } 1 - \epsilon\\
+                    \text{random action}             & \text{with probability }  \epsilon
+                \end{cases}
+                $
+                \State $R = bandit(A)$
+                \State $N(A) = N(A) + 1$
+                \State $Q(A) =  Q(A)  +\frac{1}{N(A)} [ R - Q(A) ]$
+            \EndWhile
+            \EndProcedure
+        \end{algorithmic}
+    \end{algorithm}
+    
+    \subsection{Tracking Nonstationary Problem}
+    For nonstationary problems we can use constant step-size parameter $\alpha$ in range $(0,1]$:
+
+    \begin{equation}
+        Q_{n+1} = Q_n +\alpha [ R_n - Q_n]
+    \end{equation}
+
+    \newpage
+    \subsection{Optimistic Initial Values}
+    To boost initial convergence of action-value function we can add some constant to $Q_1(a)$
+    which cause better exploration at the beginning.
+
+    \subsection{Upper-Confidence-Bound Action Selection}
+    When we need to include uncertainty about our estimations we can use method called 
+    \textit{Upper-Confidence-Bound Action Selection} which choose action based on following rule:
+
+    \begin{equation}
+        A_t = \underset{a}{arg\,max} \Bigg[ Q_t(a) + c \sqrt{\frac{\text{ln}\ t}{N_t(a)}}\  \Bigg]
+    \end{equation}
+    \\
+    where $c > 0$ controls the degree of exploration.
+
+    \subsection{Gradient Bandit Algorithm}
+    Using numerical \textit{preference} instead action-values.
+
+    \begin{equation}
+        \text{Pr}\{A_t=a\} = \frac{e^{H_t(a)}}{\sum_{b=1}^{k}e^{H_t(b)}} = \pi_t(a)
+    \end{equation}
+    \\
+    where $\pi_t(a)$ is probability of taking action $a$ in time-step $t$ and 
+    $H_t(a)$ is a preference of taking action $a$ in time-step $t$:
+
+
+    \begin{equation}
+        \begin{split}
+            H_{t+1}(A_t) = H_{t}(A_t) + \alpha (R_t -\bar{R_t})(1 - \pi_t(A_t)) 
+            \text{, \hspace{1cm}} &  \text{and} \\
+            H_{t+1}(a) = H_{t}(a) + \alpha (R_t -\bar{R_t})\pi_t(a) 
+            \text{, \hspace{2cm}} & \text{for all $a \neq A_t$}
+        \end{split}
+    \end{equation}
+
+
+
+
+
+
+
+
+\end{document}
+    
